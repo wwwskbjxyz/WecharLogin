@@ -69,7 +69,7 @@ public static class Program
         var builder = WebApplication.CreateBuilder(args);
         builder.Services.AddSingleton<SessionStore>();
 
-        // 监听 16500 端口（所有 IP）
+        // 监听 8080 端口（所有 IP）
         builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
         var app = builder.Build();
@@ -101,7 +101,7 @@ public static class Program
         app.MapPost("/api/auth/status", AuthStatusHandler);
         app.MapPost("/api/auth/bind", AuthBindHandler);
 
-        Console.WriteLine("[INFO] OpenIdMiniServer listening on http://0.0.0.0:16502");
+        Console.WriteLine("[INFO] OpenIdMiniServer listening on http://0.0.0.0:8080");
         await app.RunAsync();
     }
 
