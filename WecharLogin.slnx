@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="WecharLogin/WecharLogin.vcxproj" Id="bd03ee34-aa56-4be2-927e-173c91296d38" />
+  <Project Path="WechatServers/WebApplication4/Servers.csproj" />
+</Solution>

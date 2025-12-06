@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <title>微信绑定管理</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #0b1120;
+            color: #e5e7eb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 24px auto 48px;
+            padding: 0 16px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+        }
+
+        .card {
+            background: #020617;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 35px rgba(15, 23, 42, 0.6);
+            margin-bottom: 16px;
+            border: 1px solid #1f2937;
+        }
+
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+            .card-title span {
+                font-weight: 600;
+            }
+
+        label {
+            display: inline-block;
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #4b5563;
+            background: #020617;
+            color: #f9fafb;
+            outline: none;
+            font-size: 14px;
+            min-width: 0;
+        }
+
+            input[type="text"]:focus,
+            input[type="password"]:focus {
+                border-color: #38bdf8;
+                box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+            }
+
+        button {
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            background: linear-gradient(135deg, #22c55e, #14b8a6);
+            color: #0b1120;
+            margin-left: 8px;
+        }
+
+            button.secondary {
+                background: #1f2937;
+                color: #e5e7eb;
+                border: 1px solid #4b5563;
+            }
+
+            button.danger {
+                background: linear-gradient(135deg, #f97316, #ef4444);
+                color: #0b1120;
+            }
+
+            button:disabled {
+                opacity: 0.5;
+                cursor: default;
+            }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 12px;
+            margin-bottom: 8px;
+        }
+
+        .grow {
+            flex: 1 1 auto;
+        }
+
+        .status {
+            font-size: 13px;
+            margin-top: 6px;
+            white-space: pre-line;
+        }
+
+            .status.ok {
+                color: #4ade80;
+            }
+
+            .status.err {
+                color: #f97373;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        th, td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #1f2937;
+            text-align: left;
+        }
+
+        th {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+
+        tr:hover td {
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 11px;
+            border: 1px solid #4b5563;
+        }
+
+            .tag.red {
+                border-color: #f97373;
+                color: #fecaca;
+            }
+
+            .tag.green {
+                border-color: #4ade80;
+                color: #bbf7d0;
+            }
+
+            .tag.gray {
+                border-color: #6b7280;
+                color: #d1d5db;
+            }
+
+        .small {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .link {
+            color: #38bdf8;
+            cursor: pointer;
+        }
+
+            .link:hover {
+                text-decoration: underline;
+            }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 999px;
+            font-size: 11px;
+            border: 1px solid #4b5563;
+            color: #d1d5db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>微信管理</h1>
+
+        <!-- 登录卡片 -->
+        <div class="card" id="login-card">
+            <div class="card-title">
+                <span>登录</span>
+                <span class="small" id="login-hint">使用 admins.id=1 的账号密码</span>
+            </div>
+            <div class="row">
+                <div class="grow">
+                    <label>用户名</label><br />
+                    <input type="text" id="login-username" placeholder="admin 用户名" />
+                </div>
+                <div class="grow">
+                    <label>密码</label><br />
+                    <input type="password" id="login-password" placeholder="密码" />
+                </div>
+                <div>
+                    <button id="btn-login">登录</button>
+                </div>
+            </div>
+            <div class="status" id="login-status"></div>
+        </div>
+
+        <!-- 主操作区 -->
+        <div id="main-area" class="hidden">
+
+            <!-- 顶部用户信息 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>当前用户</span>
+                    <button class="secondary" id="btn-logout">退出登录</button>
+                </div>
+                <div class="row">
+                    <div>用户名：<span id="userinfo-name" class="badge"></span></div>
+                    <div>权限：<span id="userinfo-role" class="badge"></span></div>
+                </div>
+            </div>
+
+            <!-- 查卡 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>卡密查询（SQLite: licenses）</span>
+                </div>
+                <div class="row">
+                    <div class="grow">
+                        <label>卡密</label><br />
+                        <input type="text" id="card-number" placeholder="输入卡密后回车或点击查询" />
+                    </div>
+                    <div>
+                        <button id="btn-card-query">查询</button>
+                    </div>
+                </div>
+                <div class="status" id="card-status"></div>
+                <div id="card-result"></div>
+            </div>
+
+            <!-- OpenId 列表 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>OpenId 管理（MySQL: openid_*）</span>
+                    <span class="small">点击“刷新列表”加载数据</span>
+                </div>
+                <div class="row">
+                    <div class="grow">
+                        <label>搜索（OpenId 或卡号）</label><br />
+                        <input type="text" id="openid-search" placeholder="模糊搜索" />
+                    </div>
+                    <div>
+                        <button id="btn-openid-refresh">刷新列表</button>
+                    </div>
+                </div>
+                <div id="openid-list"></div>
+            </div>
+
+            <!-- 绑定历史 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>绑定历史</span>
+                    <span class="small" id="bindings-title">无</span>
+                </div>
+                <div id="bindings-table"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ========= 工具函数 =========
+        const $ = (id) => document.getElementById(id);
+
+        function setStatus(el, msg, ok) {
+            el.textContent = msg || "";
+            el.classList.remove("ok", "err");
+            if (!msg) return;
+            el.classList.add(ok ? "ok" : "err");
+        }
+
+        function getToken() {
+            return localStorage.getItem("openIdMiniToken") || "";
+        }
+
+        function setToken(token) {
+            if (token) localStorage.setItem("openIdMiniToken", token);
+            else localStorage.removeItem("openIdMiniToken");
+        }
+
+        async function apiFetch(url, options = {}) {
+            const token = getToken();
+            const headers = options.headers || {};
+            if (token) {
+                headers["Authorization"] = "Bearer " + token;
+            }
+            if (options.body && !headers["Content-Type"]) {
+                headers["Content-Type"] = "application/json";
+            }
+            options.headers = headers;
+
+            const res = await fetch(url, options);
+            if (!res.ok) {
+                const text = await res.text().catch(() => "");
+                throw new Error("HTTP " + res.status + ": " + text);
+            }
+            const ct = res.headers.get("content-type") || "";
+            if (ct.includes("application/json")) {
+                return await res.json();
+            }
+            return await res.text();
+        }
+
+        function parseQuery() {
+            const qs = window.location.search.substring(1);
+            const obj = {};
+            if (!qs) return obj;
+            qs.split("&").forEach((p) => {
+                const [k, v] = p.split("=");
+                if (!k) return;
+                obj[decodeURIComponent(k)] = decodeURIComponent(v || "");
+            });
+            return obj;
+        }
+
+        // ========= 登录相关 =========
+
+        async function tryLogin(username, password) {
+            const statusEl = $("login-status");
+            setStatus(statusEl, "登录中...", true);
+            $("btn-login").disabled = true;
+            try {
+                const resp = await apiFetch("/api/auth/login", {
+                    method: "POST",
+                    body: JSON.stringify({ username, password }),
+                });
+
+                if (resp.code !== 0 || !resp.data || !resp.data.token) {
+                    throw new Error(resp.message || "登录失败");
+                }
+
+                setToken(resp.data.token);
+                setStatus(statusEl, "登录成功", true);
+                await loadUserInfo();
+                showMain(true);
+            } catch (e) {
+                setToken("");
+                setStatus(statusEl, "登录失败：" + e.message, false);
+            } finally {
+                $("btn-login").disabled = false;
+            }
+        }
+
+        async function loadUserInfo() {
+            const token = getToken();
+            if (!token) return false;
+            try {
+                const resp = await apiFetch("/api/auth/getUserInfo", { method: "POST" });
+                if (resp.code !== 0 || !resp.data) {
+                    throw new Error(resp.message || "获取用户信息失败");
+                }
+                $("userinfo-name").textContent = resp.data.username;
+                $("userinfo-role").textContent = resp.data.isSuper
+                    ? "超级管理员"
+                    : "普通用户";
+                return true;
+            } catch (e) {
+                console.warn("getUserInfo 失败", e);
+                return false;
+            }
+        }
+
+        function showMain(loggedIn) {
+            if (loggedIn) {
+                $("login-card").classList.add("hidden");
+                $("main-area").classList.remove("hidden");
+            } else {
+                $("main-area").classList.add("hidden");
+                $("login-card").classList.remove("hidden");
+            }
+        }
+
+        // ========= 查卡 =========
+        async function queryCard() {
+            const card = $("card-number").value.trim();
+            const statusEl = $("card-status");
+            const resultEl = $("card-result");
+            resultEl.innerHTML = "";
+            if (!card) {
+                setStatus(statusEl, "请输入卡密", false);
+                return;
+            }
+            setStatus(statusEl, "查询中...", true);
+            try {
+                const data = await apiFetch(
+                    "/api/admin/cards/" + encodeURIComponent(card)
+                );
+                if (!data.exists) {
+                    setStatus(statusEl, "卡密不存在", false);
+                    return;
+                }
+
+                let statusTag;
+                if (data.banned) {
+                    statusTag = '<span class="tag red">黑名单</span>';
+                } else if (data.status === "normal_not_activated") {
+                    statusTag = '<span class="tag gray">未激活</span>';
+                } else if (data.status === "expired") {
+                    statusTag = '<span class="tag red">已过期</span>';
+                } else {
+                    statusTag = '<span class="tag green">正常</span>';
+                }
+
+                const html = `
+                <div class="section-title">查询结果</div>
+                <table>
+                  <tr><th>卡密</th><td>${card}</td></tr>
+                  <tr><th>状态</th><td>${statusTag}</td></tr>
+                  <tr><th>激活时间</th><td>${data.activatedAt
+                        ? new Date(data.activatedAt).toLocaleString()
+                        : "未激活"
+                    }</td></tr>
+                  <tr><th>到期时间</th><td>${data.expireText || "无"}</td></tr>
+                </table>
+              `;
+                resultEl.innerHTML = html;
+                setStatus(statusEl, "查询完成", true);
+            } catch (e) {
+                setStatus(statusEl, "查询失败：" + e.message, false);
+            }
+        }
+
+        // ========= OpenId 列表 =========
+        async function loadOpenIdList() {
+            const search = $("openid-search").value.trim();
+            const listEl = $("openid-list");
+            listEl.innerHTML = "加载中...";
+            try {
+                const url =
+                    "/api/admin/openids" +
+                    (search ? "?search=" + encodeURIComponent(search) : "");
+                const data = await apiFetch(url);
+                if (!Array.isArray(data) || data.length === 0) {
+                    listEl.innerHTML = '<div class="small">没有记录</div>';
+                    return;
+                }
+
+                let rows = "";
+                data.forEach((item) => {
+                    const tagBlk = item.isBlacklisted
+                        ? '<span class="tag red">已封禁</span>'
+                        : '<span class="tag green">正常</span>';
+                    const cardText = item.currentCard || "无";
+                    const expText = item.currentExpire
+                        ? new Date(item.currentExpire).toLocaleString()
+                        : "无";
+
+                    const lastSeenText = item.lastSeen
+                        ? new Date(item.lastSeen).toLocaleString()
+                        : "未知";
+                    const firstSeenText = item.firstSeen
+                        ? new Date(item.firstSeen).toLocaleString()
+                        : "未知";
+                    const scanCountText = (item.scanCount || 0) + "";
+                    const lastIpText = item.lastIp || "";
+
+                    rows += `
+                  <tr>
+                    <td>${item.openId}</td>
+                    <td>${tagBlk}</td>
+                    <td>${cardText}</td>
+                    <td>${expText}</td>
+                    <td title="首次扫码：${firstSeenText}">
+                      ${lastSeenText}
+                    </td>
+                    <td>${scanCountText}</td>
+                    <td>${lastIpText}</td>
+                    <td>
+                      <button class="secondary" onclick="viewBindings('${item.openId
+                        }')">绑定记录</button>
+                      ${item.isBlacklisted
+                            ? `<button class="secondary" onclick="unbanOpenId('${item.openId}')">解封</button>`
+                            : `<button class="danger" onclick="banOpenId('${item.openId}')">封禁</button>`
+                        }
+                    </td>
+                  </tr>
+                `;
+                });
+
+                listEl.innerHTML = `
+                <table>
+                  <thead>
+                    <tr>
+                      <th>OpenId</th>
+                      <th>状态</th>
+                      <th>当前卡密</th>
+                      <th>到期时间</th>
+                      <th>最后扫码时间</th>
+                      <th>扫码次数</th>
+                      <th>最后 IP</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>${rows}</tbody>
+                </table>
+              `;
+            } catch (e) {
+                listEl.innerHTML = '<div class="status err">加载失败：' + e.message + "</div>";
+            }
+        }
+
+        async function banOpenId(openid) {
+            if (!confirm("确定要封禁此 OpenId？\n" + openid)) return;
+            try {
+                await apiFetch("/api/admin/ban", {
+                    method: "POST",
+                    body: JSON.stringify({ openId: openid }),
+                });
+                await loadOpenIdList();
+            } catch (e) {
+                alert("封禁失败：" + e.message);
+            }
+        }
+
+        async function unbanOpenId(openid) {
+            try {
+                await apiFetch("/api/admin/unban", {
+                    method: "POST",
+                    body: JSON.stringify({ openId: openid }),
+                });
+                await loadOpenIdList();
+            } catch (e) {
+                alert("解封失败：" + e.message);
+            }
+        }
+
+        async function viewBindings(openid) {
+            $("bindings-title").textContent = openid;
+            const el = $("bindings-table");
+            el.innerHTML = "加载中...";
+
+            try {
+                const data = await apiFetch(
+                    "/api/admin/openids/" + encodeURIComponent(openid) + "/bindings"
+                );
+                if (!Array.isArray(data) || data.length === 0) {
+                    el.innerHTML = '<div class="small">没有绑定记录</div>';
+                    return;
+                }
+
+                let rows = "";
+                data.forEach((item) => {
+                    const expText = item.expireTime
+                        ? new Date(item.expireTime).toLocaleString()
+                        : "无";
+                    const createdText = item.createdAt
+                        ? new Date(item.createdAt).toLocaleString()
+                        : "无";
+
+                    rows += `
+                  <tr>
+                    <td>${item.cardNumber}</td>
+                    <td>${expText}</td>
+                    <td>${createdText}</td>
+                  </tr>
+                `;
+                });
+
+                el.innerHTML = `
+                <table>
+                  <thead>
+                    <tr>
+                      <th>卡密</th>
+                      <th>到期时间</th>
+                      <th>绑定时间</th>
+                    </tr>
+                  </thead>
+                  <tbody>${rows}</tbody>
+                </table>
+              `;
+            } catch (e) {
+                el.innerHTML = '<div class="status err">加载失败：' + e.message + "</div>";
+            }
+        }
+
+        // 暴露给按钮用
+        window.viewBindings = viewBindings;
+        window.banOpenId = banOpenId;
+        window.unbanOpenId = unbanOpenId;
+
+        // ========= 初始化 =========
+        window.addEventListener("DOMContentLoaded", async () => {
+            // 绑定按钮事件
+            $("btn-login").addEventListener("click", () => {
+                const u = $("login-username").value.trim();
+                const p = $("login-password").value;
+                if (!u || !p) {
+                    setStatus($("login-status"), "请输入用户名和密码", false);
+                    return;
+                }
+                tryLogin(u, p);
+            });
+
+            $("login-password").addEventListener("keydown", (e) => {
+                if (e.key === "Enter") $("btn-login").click();
+            });
+
+            $("btn-logout").addEventListener("click", () => {
+                setToken("");
+                showMain(false);
+            });
+
+            $("btn-card-query").addEventListener("click", queryCard);
+            $("card-number").addEventListener("keydown", (e) => {
+                if (e.key === "Enter") queryCard();
+            });
+
+            $("btn-openid-refresh").addEventListener("click", loadOpenIdList);
+
+            // 如果本地已有 token，尝试自动登录
+            let loggedIn = false;
+            if (getToken()) {
+                const ok = await loadUserInfo();
+                if (ok) {
+                    loggedIn = true;
+                    showMain(true);
+                } else {
+                    setToken("");
+                }
+            }
+
+            // 如果没登录，再看 URL 里有没有 username/password
+            if (!loggedIn) {
+                const qs = parseQuery();
+                if (qs.username && qs.password) {
+                    $("login-username").value = qs.username;
+                    $("login-password").value = qs.password;
+                    tryLogin(qs.username, qs.password);
+                } else {
+                    showMain(false);
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
