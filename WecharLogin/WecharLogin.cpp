@@ -19,7 +19,7 @@
 // ---- 共享 AES Key（32 字节）和签名 Secret（要和服务端 CryptoCfg 一致）
 void GetAesKey(BYTE out[32])
 {
-    
+
 
     // ★ 拆分存储：逆向者看不出来你真实 key 是什么
     static const BYTE part1[16] =
@@ -45,7 +45,7 @@ void GetAesKey(BYTE out[32])
         out[i + 16] = part2[i] ^ 0x5A;
     }
 
-    
+
 }
 // 签名密钥（HMAC-SHA256 用）必须和服务端一致
 static const char g_SigSecret[] = "32位随机密钥";
@@ -73,26 +73,26 @@ void WxLogin_SetBackendBase(const wchar_t* baseUrl)
 // -----------------------------
 static int Utf8ToWide(const char* s, wchar_t* w, int c)
 {
-   
+
     if (!s || !w || c <= 0) { return 0; }
     int ret = MultiByteToWideChar(CP_UTF8, 0, s, -1, w, c);
-    
+
     return ret;
 }
 
 static int WideToUtf8(const wchar_t* w, char* s, int c)
 {
-   
+
     if (!w || !s || c <= 0) { return 0; }
     int ret = WideCharToMultiByte(CP_UTF8, 0, w, -1, s, c, NULL, NULL);
-    
+
     return ret;
 }
 
 // ====================== Base64 编码 ======================
 static bool Base64Encode(const BYTE* data, DWORD dataLen, std::string& out)
 {
-    
+
     if (!data || dataLen == 0) { return false; }
 
     DWORD dwLen = 0;
@@ -129,17 +129,17 @@ static bool Base64Encode(const BYTE* data, DWORD dataLen, std::string& out)
         tmp.resize(dwLen);
 
     out.swap(tmp);
-    
+
     return true;
 }
 
 // ====================== 随机 IV ======================
 static bool GenRandomBytes(BYTE* buf, DWORD len)
 {
-   
+
     if (!buf || !len) { return false; }
     NTSTATUS st = BCryptGenRandom(nullptr, buf, len, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    
+
     return (st >= 0);
 }
 
@@ -150,7 +150,7 @@ static bool AesEncryptCbcPkcs7(
     const BYTE* iv16,
     std::vector<BYTE>& outCipher)
 {
-    
+
     if (!plain || !plainLen || !key32 || !iv16) { return false; }
 
     NTSTATUS status = 0;
@@ -240,7 +240,7 @@ static bool AesEncryptCbcPkcs7(
     if (!ok)
         outCipher.clear();
 
-    
+
     return ok;
 }
 
@@ -251,7 +251,7 @@ static bool HmacSha256Hex(
     DWORD keyLen,
     std::string& outHex)
 {
-    
+
     NTSTATUS status = 0;
     BCRYPT_ALG_HANDLE hAlg = nullptr;
     BCRYPT_HASH_HANDLE hHash = nullptr;
@@ -332,7 +332,7 @@ static bool HmacSha256Hex(
     if (pbHashObject) HeapFree(GetProcessHeap(), 0, pbHashObject);
     if (hAlg) BCryptCloseAlgorithmProvider(hAlg, 0);
 
-    
+
     return ok;
 }
 
@@ -342,7 +342,7 @@ static bool BuildSecureEnvelopeJson(
     char* outBuf,
     size_t outBufSize)
 {
-    
+
     if (!innerJson || !outBuf || outBufSize == 0) { return false; }
 
     const BYTE* plain = (const BYTE*)innerJson;
@@ -401,7 +401,7 @@ static bool BuildSecureEnvelopeJson(
         return false;
     }
 
-    
+
     return true;
 }
 
@@ -410,7 +410,7 @@ static bool BuildSecureEnvelopeJson(
 // ======================================================
 static HRESULT PngBytesToHBITMAP(const BYTE* data, DWORD len, HBITMAP* phBmp, int* pw, int* ph)
 {
-  
+
     if (!data || !len || !phBmp) {
 
         return E_INVALIDARG;
@@ -520,13 +520,13 @@ static HRESULT PngBytesToHBITMAP(const BYTE* data, DWORD len, HBITMAP* phBmp, in
     if (pStream)    pStream->Release();
     if (pFactory)   pFactory->Release();
 
-    
+
     return hr;
 }
 
 static BOOL GetJsonString(const char* json, const char* key, char* out, int outSize, BOOL unescapeSlash)
 {
-   
+
     if (!json || !key || !out || outSize <= 1) { return FALSE; }
 
     // 只找 "key"，不带冒号，兼容 "key": 和 "key" : 两种写法
@@ -572,14 +572,14 @@ static BOOL GetJsonString(const char* json, const char* key, char* out, int outS
     }
     out[oi] = 0;
 
-    
+
     return TRUE;
 }
 
 
 static BOOL ParseJsonBool(const char* json, const char* key, BOOL* out)
 {
-    
+
     if (!json || !key || !out) { return FALSE; }
 
     // 同样先找 "key"（不带冒号）
@@ -631,19 +631,19 @@ static BOOL ParseJsonBool(const char* json, const char* key, BOOL* out)
         }
     }
 
-    
+
     return FALSE;
 }
 
 
 static BOOL ParseJsonString(const char* json, const char* key, wchar_t* out, int cch)
 {
-   
+
     if (!json || !key || !out || cch <= 0) { return FALSE; }
     char buf[256] = { 0 };
     if (!GetJsonString(json, key, buf, sizeof(buf), FALSE)) { return FALSE; }
     int ok = Utf8ToWide(buf, out, cch) > 0;
-    
+
     return ok;
 }
 
@@ -657,7 +657,7 @@ static BOOL HttpRequest(
     const void* body, DWORD bodyLen,
     BYTE** ppData, DWORD* pDataLen)
 {
-   
+
     if (!method || !url || !ppData || !pDataLen) { return FALSE; }
     *ppData = NULL; *pDataLen = 0;
 
@@ -747,7 +747,7 @@ static BOOL HttpRequest(
     if (c) WinHttpCloseHandle(c);
     if (s) WinHttpCloseHandle(s);
 
-    
+
     return ok;
 }
 
@@ -756,129 +756,22 @@ static BOOL HttpRequest(
 // ------------------------------------------------------
 // 从 WeGame 登录页 HTML 解析 uuid
 // ------------------------------------------------------
-static BOOL GetUuid(wchar_t* uuidW, int cch)
-{
-    
-    if (!uuidW || cch <= 1) { return FALSE; }
 
-    const wchar_t* url =
-        L"https://open.weixin.qq.com/connect/qrconnect?"
-        L"appid=wx911818d5d92affa8&scope=snsapi_login&"
-        L"redirect_uri=https://www.wegame.com.cn/login/callback.html?t=wx&c=0&a=0&"
-        L"login_type=jssdk&self_redirect=true&state=dc30dd59&style=black&"
-        L"href=https://wegame.gtimg.com/g.55555-r.c4663/login/qrcode.css";
-
-    BYTE* p = NULL; DWORD n = 0;
-    if (!HttpGet(url, &p, &n) || !p) { return FALSE; }
-
-    const char* body = (const char*)p;
-    const char* x = strstr(body, "uuid=");
-    if (!x) { free(p);  return FALSE; }
-
-    x += 5;
-    const char* e = x;
-    while (*e && *e != '\"' && *e != '\'' && *e != '&'
-        && *e != '\r' && *e != '\n' && *e != ' ') ++e;
-
-    int len = (int)(e - x);
-    if (len <= 0 || len >= 64) { free(p); return FALSE; }
-
-    char uuidA[64] = { 0 };
-    memcpy(uuidA, x, len);
-    uuidA[len] = 0;
-
-    Utf8ToWide(uuidA, uuidW, cch);
-    free(p);
-    
-    return TRUE;
-}
 
 // ------------------------------------------------------
 // 解析 wx_code
 // ------------------------------------------------------
-static BOOL ParseWxCode(BYTE* data, char* out, int outSize)
-{
-   
-    if (!data || !out || outSize <= 1) { return FALSE; }
-    const char* body = (const char*)data;
 
-    const char* k1 = "\"wx_code\":\"";
-    const char* k2 = "window.wx_code=\"";
-    const char* k3 = "window.wx_code='";
-
-    const char* p = strstr(body, k1);
-    if (p) p += strlen(k1);
-    else if ((p = strstr(body, k2))) p += strlen(k2);
-    else if ((p = strstr(body, k3))) p += strlen(k3);
-    else { return FALSE; }
-
-    const char* e = p;
-    while (*e && *e != '\"' && *e != '\'' && *e != ';'
-        && *e != '\r' && *e != '\n') ++e;
-
-    int len = (int)(e - p);
-    if (len <= 0 || len >= outSize) { return FALSE; }
-
-    memcpy(out, p, len);
-    out[len] = 0;
-    
-    return TRUE;
-}
 
 // ------------------------------------------------------
 // 解析 JSON: openid / nick
 // ------------------------------------------------------
-static BOOL ExtractOpenId(const char* json, wchar_t* out, int outSize)
-{
-   
-    if (!json || !out || outSize <= 1) { return FALSE; }
-    char buf[128] = { 0 };
-    if (!GetJsonString(json, "openid", buf, sizeof(buf), FALSE)) { return FALSE; }
-    BOOL ok = Utf8ToWide(buf, out, outSize) > 0;
-    
-    return ok;
-}
 
-static BOOL ExtractNick(const char* json, wchar_t* out, int outSize)
-{
-   
-    if (!json || !out || outSize <= 1) { return FALSE; }
-    char buf[256] = { 0 };
-    if (!GetJsonString(json, "nick", buf, sizeof(buf), TRUE)) { return FALSE; }
-    BOOL ok = Utf8ToWide(buf, out, outSize) > 0;
-    
-    return ok;
-}
 
 // ------------------------------------------------------
 // 轮询 uuid -> wx_code
 // ------------------------------------------------------
-static BOOL PollWxCode(const wchar_t* uuidW, wchar_t* wxCode, int cch)
-{
-   
-    if (!uuidW || !wxCode || cch <= 1) { return FALSE; }
 
-    wchar_t url[512];
-    wsprintfW(url, L"https://lp.open.weixin.qq.com/connect/l/qrconnect?uuid=%s", uuidW);
-
-    char codeA[128] = { 0 };
-
-    for (int i = 0; i < 120; ++i) {
-        BYTE* p = NULL; DWORD n = 0;
-        if (HttpGet(url, &p, &n) && p) {
-            BOOL ok = ParseWxCode(p, codeA, sizeof(codeA));
-            free(p);
-            if (ok) {
-                Utf8ToWide(codeA, wxCode, cch);
-
-                return TRUE;
-            }
-        }
-        Sleep(1500);
-    }
-    
-    return FALSE;
-}
 
 // ------------------------------------------------------
 // 全局微信登录结果（内部用）
@@ -889,300 +782,28 @@ static wchar_t g_szNick[256] = { 0 };
 // ------------------------------------------------------
 // 调 WeGame 登录：只负责拿 openid + nick
 // ------------------------------------------------------
-static BOOL WeGameLogin(const wchar_t* wxCode)
-{
-   
-    if (!wxCode || !*wxCode) { return FALSE; }
 
-    char codeA[128] = { 0 };
-    if (WideToUtf8(wxCode, codeA, sizeof(codeA)) <= 0) { return FALSE; }
-
-    char jsonBody[512];
-    int jlen = snprintf(
-        jsonBody, sizeof(jsonBody),
-        "{\"login_info\":{\"wx_info_type\":1,\"appid\":\"wx911818d5d92affa8\",\"code\":\"%s\"},"
-        "\"config_params\":{\"lang_type\":0},"
-        "\"mappid\":\"10001\",\"mcode\":\"\",\"clienttype\":\"1000005\"}",
-        codeA);
-    if (jlen <= 0 || jlen >= (int)sizeof(jsonBody)) { return FALSE; }
-
-    const wchar_t* url =
-        L"https://www.wegame.com.cn/api/middle/clientapi/auth/login_by_wechat";
-
-    wchar_t hdr[512];
-    wsprintfW(hdr,
-        L"Connection: Keep-Alive\r\n"
-        L"Content-Type: application/json; Charset=UTF-8\r\n"
-        L"Accept: */*\r\n"
-        L"Referer: https://www.wegame.com.cn/login/callback.html?t=wx&c=0&a=0&code=%s&state=1\r\n"
-        L"Origin: https://www.wegame.com.cn\r\n",
-        wxCode);
-
-    BYTE* resp = NULL; DWORD n = 0;
-    if (!HttpRequest(L"GET", url, hdr, jsonBody, (DWORD)jlen, &resp, &n) || !resp) {
-
-        return FALSE;
-    }
-
-    const char* ja = (const char*)resp;
-
-    wchar_t openidW[128] = { 0 };
-    if (ExtractOpenId(ja, openidW, 128)) {
-        wcsncpy_s(g_szOpenId, _countof(g_szOpenId), openidW, _TRUNCATE);
-    }
-
-    wchar_t nickW[256] = { 0 };
-    if (ExtractNick(ja, nickW, _countof(nickW))) {
-        wcsncpy_s(g_szNick, _countof(g_szNick), nickW, _TRUNCATE);
-    }
-
-    free(resp);
-    
-    return TRUE;
-}
-
-// ------------------------------------------------------
 // 下载二维码并转成 HBITMAP
 // ------------------------------------------------------
-static BOOL GetQrBitmap(const wchar_t* uuidW)
-{
-    
-    if (!uuidW || !*uuidW) { return FALSE; }
-
-    wchar_t url[256];
-    wsprintfW(url, L"https://open.weixin.qq.com/connect/qrcode/%s", uuidW);
-
-    BYTE* data = NULL; DWORD len = 0;
-    if (!HttpGet(url, &data, &len) || !data) { return FALSE; }
-
-    HBITMAP bmp = NULL; int w = 0, h = 0;
-    HRESULT hr = PngBytesToHBITMAP(data, len, &bmp, &w, &h);
-    free(data);
-
-    if (FAILED(hr) || !bmp) { return FALSE; }
-
-    if (g_hQrBitmap) DeleteObject(g_hQrBitmap);
-    g_hQrBitmap = bmp;
-    g_bmW = w;
-    g_bmH = h;
-
-    
-    return TRUE;
-}
 
 // ------------------------------------------------------
 // 二维码窗口 WndProc
 // ------------------------------------------------------
-static LRESULT CALLBACK QrWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-    switch (msg)
-    {
-    case WM_PAINT:
-    {
-        PAINTSTRUCT ps;
-        HDC hdc = BeginPaint(hWnd, &ps);
-
-        RECT rc;
-        GetClientRect(hWnd, &rc);
-        FillRect(hdc, &rc, (HBRUSH)(COLOR_WINDOW + 1));
-
-        if (g_hQrBitmap)
-        {
-            HDC hMem = CreateCompatibleDC(hdc);
-            HBITMAP hOld = (HBITMAP)SelectObject(hMem, g_hQrBitmap);
-
-            int qrSize = min(rc.right - rc.left - 40, rc.bottom - rc.top - 80);
-            int x = (rc.right - rc.left - qrSize) / 2;
-            int y = (rc.bottom - rc.top - qrSize) / 2;
-
-            SetStretchBltMode(hdc, HALFTONE);
-            StretchBlt(
-                hdc,
-                x, y,
-                qrSize, qrSize,
-                hMem,
-                0, 0,
-                g_bmW, g_bmH,
-                SRCCOPY
-            );
-
-            SelectObject(hMem, hOld);
-            DeleteDC(hMem);
-        }
-
-        SetBkMode(hdc, TRANSPARENT);
-        SetTextColor(hdc, RGB(0, 0, 0));
-        const wchar_t* tip = L"微信二维码登录";
-        DrawTextW(hdc, tip, -1, &rc,
-            DT_CENTER | DT_BOTTOM | DT_SINGLELINE);
-
-        EndPaint(hWnd, &ps);
-
-        return 0;
-    }
-
-    case WM_QR_LOGIN_DONE:
-        DestroyWindow(hWnd);
-
-        return 0;
-
-    case WM_DESTROY:
-        PostQuitMessage(0);
-
-        return 0;
-    }
-
-    
-    return DefWindowProcW(hWnd, msg, wParam, lParam);
-}
 
 // ------------------------------------------------------
 // 轮询线程：uuid -> wx_code -> WeGameLogin
 // ------------------------------------------------------
-static DWORD WINAPI WorkerThread(LPVOID lp)
-{
-   
-    if (!lp) { return 0; }
-
-    wchar_t uuid[64] = { 0 };
-    wcsncpy_s(uuid, _countof(uuid), (wchar_t*)lp, _TRUNCATE);
-    free(lp);
-
-    wchar_t wxCode[128] = { 0 };
-    if (!PollWxCode(uuid, wxCode, _countof(wxCode))) {
-        if (g_hQrWnd)
-            PostMessageW(g_hQrWnd, WM_QR_LOGIN_DONE, 0, 0);
-
-        return 0;
-    }
-
-    if (g_hQrWnd)
-        PostMessageW(g_hQrWnd, WM_QR_LOGIN_DONE, 0, 0);
-
-    WeGameLogin(wxCode);
-    
-    return 0;
-}
 
 // ------------------------------------------------------
 // 对外：二维码登录，拿 openid + nick
 // ------------------------------------------------------
-BOOL WxLogin_ShowQrAndGetOpenId(WxLoginResult* result)
-{
-   
-    if (!result) { return FALSE; }
-
-    ZeroMemory(result, sizeof(WxLoginResult));
-    ZeroMemory(g_szOpenId, sizeof(g_szOpenId));
-    ZeroMemory(g_szNick, sizeof(g_szNick));
-
-    HRESULT hrCo = CoInitialize(NULL);
-    if (FAILED(hrCo))
-    {
-
-        return FALSE;
-    }
-
-    wchar_t uuid[64] = { 0 };
-    if (!GetUuid(uuid, _countof(uuid))) {
-        CoUninitialize();
-
-        return FALSE;
-    }
-
-    if (!GetQrBitmap(uuid)) {
-        CoUninitialize();
-
-        return FALSE;
-    }
-
-    WNDCLASSW wc = {};
-    wc.lpfnWndProc = QrWndProc;
-    wc.hInstance = GetModuleHandleW(NULL);
-    wc.lpszClassName = L"QrWindowClass";
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    RegisterClassW(&wc);
-
-    HWND hWnd = CreateWindowExW(
-        0,
-        wc.lpszClassName,
-        L"微信扫码登录",
-        WS_OVERLAPPED | WS_SYSMENU | WS_CAPTION,
-        CW_USEDEFAULT, CW_USEDEFAULT,
-        360, 420,
-        NULL, NULL,
-        wc.hInstance,
-        NULL
-    );
-    g_hQrWnd = hWnd;
-
-    RECT rc;
-    GetWindowRect(hWnd, &rc);
-    int w = rc.right - rc.left;
-    int h = rc.bottom - rc.top;
-    int sx = GetSystemMetrics(SM_CXSCREEN);
-    int sy = GetSystemMetrics(SM_CYSCREEN);
-    SetWindowPos(hWnd, NULL,
-        (sx - w) / 2, (sy - h) / 2, 0, 0,
-        SWP_NOZORDER | SWP_NOSIZE);
-
-    ShowWindow(hWnd, SW_SHOW);
-    UpdateWindow(hWnd);
-
-    wchar_t* uuidCopy = (wchar_t*)malloc(sizeof(uuid));
-    if (!uuidCopy) {
-        if (g_hQrBitmap) { DeleteObject(g_hQrBitmap); g_hQrBitmap = NULL; }
-        CoUninitialize();
-
-        return FALSE;
-    }
-    wcscpy_s(uuidCopy, 64, uuid);
-
-    HANDLE hTh = CreateThread(NULL, 0, WorkerThread, uuidCopy, 0, NULL);
-    if (!hTh) {
-        free(uuidCopy);
-        if (g_hQrBitmap) { DeleteObject(g_hQrBitmap); g_hQrBitmap = NULL; }
-        CoUninitialize();
-
-        return FALSE;
-    }
-
-    MSG msg;
-    while (GetMessageW(&msg, NULL, 0, 0) > 0)
-    {
-        TranslateMessage(&msg);
-        DispatchMessageW(&msg);
-    }
-
-    WaitForSingleObject(hTh, INFINITE);
-    CloseHandle(hTh);
-
-    if (g_hQrBitmap) {
-        DeleteObject(g_hQrBitmap);
-        g_hQrBitmap = NULL;
-    }
-
-    CoUninitialize();
-
-    if (!g_szOpenId[0])
-    {
-
-        return FALSE;
-    }
-
-    wcsncpy_s(result->openId, _countof(result->openId), g_szOpenId, _TRUNCATE);
-    wcsncpy_s(result->nick, _countof(result->nick), g_szNick, _TRUNCATE);
-
-    
-    return TRUE;
-}
 
 // ------------------------------------------------------
 // /api/auth/status
 // ------------------------------------------------------
 BOOL Backend_QueryStatus(const wchar_t* openid, BackendStatus* st)
 {
-   
+
     if (!openid || !st) { return FALSE; }
 
     char openidA[128] = { 0 };
@@ -1236,7 +857,7 @@ BOOL Backend_QueryStatus(const wchar_t* openid, BackendStatus* st)
     ParseJsonString(json, "boundCard", st->boundCard, _countof(st->boundCard));
 
     free(resp);
-    
+
     return TRUE;
 }
 
@@ -1245,7 +866,7 @@ BOOL Backend_QueryStatus(const wchar_t* openid, BackendStatus* st)
 // ------------------------------------------------------
 BOOL Backend_BindCard(const wchar_t* openid, const wchar_t* card, BackendStatus* st)
 {
-   
+
     if (!openid || !card || !st) { return FALSE; }
 
     char openidA[128] = { 0 };
@@ -1310,7 +931,7 @@ BOOL Backend_BindCard(const wchar_t* openid, const wchar_t* card, BackendStatus*
     st->boundCard[0] = 0;      // 这里不返回卡密
 
     free(resp);
-    
+
 
     // ★ 关键：直接用 succ 作为函数返回值
     return succ ? TRUE : FALSE;
